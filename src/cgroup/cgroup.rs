@@ -146,15 +146,11 @@ impl CGroup {
     }
 
     pub fn add_procs(&self, procs: Vec<u32>) -> Result<(), std::io::Error> {
-        let to_write = procs
-            .iter()
-            .map(|proc| proc.to_string())
-            .collect::<Vec<String>>()
-            .join("\n");
+        self.write_list("cgroup.procs", procs)
+    }
 
-        self.write("cgroup.procs", &to_write)?;
-
-        Ok(())
+    pub fn add_threads(&self, threads: Vec<u32>) -> Result<(), std::io::Error> {
+        self.write_list("cgroup.threads", threads)
     }
 
     fn write_value<T>(&self, name: &str, value: T) -> Result<(), std::io::Error>
@@ -162,6 +158,21 @@ impl CGroup {
         T: fmt::Display,
     {
         self.write(name, &value.to_string())?;
+        Ok(())
+    }
+
+    fn write_list<T>(&self, name: &str, value: Vec<T>) -> Result<(), std::io::Error>
+    where
+        T: fmt::Display,
+    {
+        let to_write = value
+            .iter()
+            .map(|v| v.to_string())
+            .collect::<Vec<String>>()
+            .join("\n");
+
+        self.write(name, &to_write)?;
+
         Ok(())
     }
 
