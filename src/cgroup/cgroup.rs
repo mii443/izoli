@@ -56,6 +56,8 @@ impl CGroup {
         cgroup_root.join(&self.path)
     }
 
+    // cgroup files read
+
     pub fn get_controllers(&self) -> Result<Vec<Controller>, std::io::Error> {
         self.inner_get_controllers("cgroup.controllers")
     }
@@ -83,16 +85,6 @@ impl CGroup {
         self.get_u32_list("cgroup.threads")
     }
 
-    fn get_u32_list(&self, name: &str) -> Result<Vec<u32>, std::io::Error> {
-        let procs = self
-            .read(name)?
-            .lines()
-            .map(|proc| u32::from_str(proc.trim()).unwrap())
-            .collect();
-
-        Ok(procs)
-    }
-
     pub fn get_stat(&self) -> Result<CGroupStat, std::io::Error> {
         let stat = self.read("cgroup.stat")?;
 
@@ -105,6 +97,16 @@ impl CGroup {
 
     pub fn get_max_descendants(&self) -> Result<CGroupLimitValue<u64>, std::io::Error> {
         self.get_limit_value("cgroup.max.descendants")
+    }
+
+    fn get_u32_list(&self, name: &str) -> Result<Vec<u32>, std::io::Error> {
+        let procs = self
+            .read(name)?
+            .lines()
+            .map(|proc| u32::from_str(proc.trim()).unwrap())
+            .collect();
+
+        Ok(procs)
     }
 
     fn get_limit_value<T>(&self, name: &str) -> Result<CGroupLimitValue<T>, std::io::Error>
