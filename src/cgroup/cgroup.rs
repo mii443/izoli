@@ -141,6 +141,10 @@ impl CGroup {
         self.write_value("cgroup.max.depth", max)
     }
 
+    pub fn set_max_descendants(&self, max: CGroupLimitValue<u64>) -> Result<(), std::io::Error> {
+        self.write_value("cgroup.max.descendants", max)
+    }
+
     fn write_value<T>(&self, name: &str, value: T) -> Result<(), std::io::Error>
     where
         T: fmt::Display,
