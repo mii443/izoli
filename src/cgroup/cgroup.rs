@@ -145,6 +145,18 @@ impl CGroup {
         self.write_value("cgroup.max.descendants", max)
     }
 
+    pub fn add_procs(&self, procs: Vec<u32>) -> Result<(), std::io::Error> {
+        let to_write = procs
+            .iter()
+            .map(|proc| proc.to_string())
+            .collect::<Vec<String>>()
+            .join("\n");
+
+        self.write("cgroup.procs", &to_write)?;
+
+        Ok(())
+    }
+
     fn write_value<T>(&self, name: &str, value: T) -> Result<(), std::io::Error>
     where
         T: fmt::Display,
