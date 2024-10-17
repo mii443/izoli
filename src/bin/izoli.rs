@@ -10,4 +10,6 @@ fn main() {
     println!("{:?}", cgroup.get_procs());
     println!("{:?}", cgroup.get_threads());
     println!("{:?}", cgroup.get_stat());
+    println!("{:?}", cgroup.get_max_depth());
+    println!("{:?}", cgroup.get_max_descendants());
 }

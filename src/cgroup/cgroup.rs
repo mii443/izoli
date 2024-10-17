@@ -100,8 +100,19 @@ impl CGroup {
     }
 
     pub fn get_max_depth(&self) -> Result<CGroupLimitValue<u64>, std::io::Error> {
-        let max = self.read("cgroup.max.depth")?;
+        self.get_limit_value("cgroup.max.depth")
+    }
 
-        Ok(CGroupLimitValue::from_str(&max).unwrap())
+    pub fn get_max_descendants(&self) -> Result<CGroupLimitValue<u64>, std::io::Error> {
+        self.get_limit_value("cgroup.max.descendants")
+    }
+
+    fn get_limit_value<T>(&self, name: &str) -> Result<CGroupLimitValue<T>, std::io::Error>
+    where
+        T: FromStr,
+    {
+        let value = self.read(name)?;
+
+        Ok(CGroupLimitValue::from_str(&value).unwrap())
     }
 }
