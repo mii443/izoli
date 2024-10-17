@@ -1,7 +1,7 @@
 use std::{
     fs::{self, File},
     io::Read,
-    path::{Path, PathBuf},
+    path::PathBuf,
     str::FromStr,
 };
 
