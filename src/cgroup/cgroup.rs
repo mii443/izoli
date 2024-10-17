@@ -5,7 +5,7 @@ use std::{
     str::FromStr,
 };
 
-use super::{cgroup_stat::CGroupStat, controller::Controller};
+use super::{cgroup_stat::CGroupStat, controller::Controller, limit_value::CGroupLimitValue};
 
 pub struct CGroup {
     pub path: PathBuf,
@@ -97,5 +97,11 @@ impl CGroup {
         let stat = self.read("cgroup.stat")?;
 
         Ok(CGroupStat::from_str(&stat).unwrap())
+    }
+
+    pub fn get_max_depth(&self) -> Result<CGroupLimitValue<u64>, std::io::Error> {
+        let max = self.read("cgroup.max.depth")?;
+
+        Ok(CGroupLimitValue::from_str(&max).unwrap())
     }
 }
