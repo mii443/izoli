@@ -137,6 +137,18 @@ impl CGroup {
         Ok(())
     }
 
+    pub fn set_max_depth(&self, max: CGroupLimitValue<u64>) -> Result<(), std::io::Error> {
+        self.write_value("cgroup.max.depth", max)
+    }
+
+    fn write_value<T>(&self, name: &str, value: T) -> Result<(), std::io::Error>
+    where
+        T: fmt::Display,
+    {
+        self.write(name, &value.to_string())?;
+        Ok(())
+    }
+
     fn get_u32_list(&self, name: &str) -> Result<Vec<u32>, std::io::Error> {
         let procs = self
             .read(name)?
