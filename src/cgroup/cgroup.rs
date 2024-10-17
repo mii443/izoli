@@ -76,8 +76,16 @@ impl CGroup {
     }
 
     pub fn get_procs(&self) -> Result<Vec<u32>, std::io::Error> {
+        self.get_u32_list("cgroup.procs")
+    }
+
+    pub fn get_threads(&self) -> Result<Vec<u32>, std::io::Error> {
+        self.get_u32_list("cgroup.threads")
+    }
+
+    fn get_u32_list(&self, name: &str) -> Result<Vec<u32>, std::io::Error> {
         let procs = self
-            .read("cgroup.procs")?
+            .read(name)?
             .lines()
             .map(|proc| u32::from_str(proc.trim()).unwrap())
             .collect();
