@@ -66,4 +66,14 @@ impl CGroup {
 
         Ok(controllers)
     }
+
+    pub fn get_procs(&self) -> Result<Vec<u32>, std::io::Error> {
+        let procs = self
+            .read("cgroup.procs")?
+            .lines()
+            .map(|proc| u32::from_str(proc.trim()).unwrap())
+            .collect();
+
+        Ok(procs)
+    }
 }
