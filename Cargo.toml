@@ -3,4 +3,12 @@ name = "izoli"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "izolilib"
+path = "src/lib.rs"
+
+[[bin]]
+name = "izoli"
+path = "src/bin/izoli.rs"
+
 [dependencies]
