@@ -31,10 +31,15 @@ impl CGroup {
         root.exists() && root.is_dir()
     }
 
+    pub fn get_file_path(&self, name: &str) -> PathBuf {
+        let root = self.get_root_path();
+
+        root.join(name)
+    }
+
     pub fn get_root_path(&self) -> PathBuf {
         let cgroup_root = PathBuf::from("/sys/fs/cgroup/");
-        let root = cgroup_root.join(&self.path);
 
-        root
+        cgroup_root.join(&self.path)
     }
 }
