@@ -1,7 +1,7 @@
-use izolilib::cgroup::cgroup::CGroup;
+use izolilib::cgroup::{cgroup::CGroup, controller::Controller};
 
 fn main() {
-    let cgroup = CGroup::new("").unwrap();
+    let cgroup = CGroup::new("test").unwrap();
     println!("{:?}", cgroup.get_root_path());
     println!("{}", cgroup.check_status());
     println!("{:?}", cgroup.read("cgroup.type"));

@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt, str::FromStr};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Controller {
@@ -30,6 +30,22 @@ impl FromStr for Controller {
             "pids" => Ok(Self::Pids),
             "rdma" => Ok(Self::Rdma),
             _ => Err(ParseControllerError),
+        }
+    }
+}
+
+impl fmt::Display for Controller {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Controller::Cpu => write!(f, "cpu"),
+            Controller::Cpuset => write!(f, "cpuset"),
+            Controller::Memory => write!(f, "memory"),
+            Controller::Io => write!(f, "io"),
+            Controller::Hugetlb => write!(f, "hugetlb"),
+            Controller::Misc => write!(f, "misc"),
+            Controller::Pids => write!(f, "pids"),
+            Controller::Rdma => write!(f, "rdma"),
+            Controller::Unknown => write!(f, "unknown"),
         }
     }
 }

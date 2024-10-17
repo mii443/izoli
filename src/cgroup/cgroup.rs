@@ -1,6 +1,6 @@
 use std::{
     fs::{self, File},
-    io::Read,
+    io::{Read, Write},
     path::PathBuf,
     str::FromStr,
 };
@@ -36,6 +36,14 @@ impl CGroup {
         file.read_to_string(&mut buf)?;
 
         Ok(buf)
+    }
+
+    pub fn write(&self, name: &str, data: &str) -> Result<(), std::io::Error> {
+        let path = self.get_file_path(name);
+        let mut file = File::options().append(true).open(path)?;
+        file.write_all(data.as_bytes())?;
+
+        Ok(())
     }
 
     pub fn check_status(&self) -> bool {
@@ -97,6 +105,35 @@ impl CGroup {
 
     pub fn get_max_descendants(&self) -> Result<CGroupLimitValue<u64>, std::io::Error> {
         self.get_limit_value("cgroup.max.descendants")
+    }
+
+    // cgroup files write
+
+    pub fn add_subtree_control(&self, controllers: Vec<Controller>) -> Result<(), std::io::Error> {
+        let to_write = controllers
+            .iter()
+            .map(|controller| format!("+{}", controller))
+            .collect::<Vec<String>>()
+            .join(" ");
+
+        self.write("cgroup.subtree_control", &to_write)?;
+
+        Ok(())
+    }
+
+    pub fn remove_subtree_control(
+        &self,
+        controllers: Vec<Controller>,
+    ) -> Result<(), std::io::Error> {
+        let to_write = controllers
+            .iter()
+            .map(|controller| format!("-{}", controller))
+            .collect::<Vec<String>>()
+            .join(" ");
+
+        self.write("cgroup.subtree_control", &to_write)?;
+
+        Ok(())
     }
 
     fn get_u32_list(&self, name: &str) -> Result<Vec<u32>, std::io::Error> {
