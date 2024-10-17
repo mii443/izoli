@@ -1,9 +1,9 @@
-use std::str::FromStr;
+use std::{fmt, str::FromStr};
 
 #[derive(Debug)]
 pub enum CGroupLimitValue<T>
 where
-    T: FromStr,
+    T: FromStr + std::fmt::Display,
 {
     Max,
     Value(T),
@@ -14,7 +14,7 @@ pub struct ParseCGroupLimitValueError;
 
 impl<T> FromStr for CGroupLimitValue<T>
 where
-    T: FromStr,
+    T: FromStr + std::fmt::Display,
 {
     type Err = ParseCGroupLimitValueError;
 
@@ -27,6 +27,18 @@ where
             } else {
                 Err(ParseCGroupLimitValueError)
             }
+        }
+    }
+}
+
+impl<T> fmt::Display for CGroupLimitValue<T>
+where
+    T: FromStr + fmt::Display,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            CGroupLimitValue::Max => write!(f, "max"),
+            CGroupLimitValue::Value(value) => write!(f, "{value}"),
         }
     }
 }

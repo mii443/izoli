@@ -1,4 +1,5 @@
 use std::{
+    fmt,
     fs::{self, File},
     io::{Read, Write},
     path::PathBuf,
@@ -148,7 +149,7 @@ impl CGroup {
 
     fn get_limit_value<T>(&self, name: &str) -> Result<CGroupLimitValue<T>, std::io::Error>
     where
-        T: FromStr,
+        T: FromStr + fmt::Display,
     {
         let value = self.read(name)?;
 
