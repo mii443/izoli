@@ -4,6 +4,17 @@ use std::{
     path::{Path, PathBuf},
 };
 
+pub enum Controller {
+    Cpu,
+    Cpuset,
+    Memory,
+    Io,
+    Hugetlb,
+    Misc,
+    Pids,
+    Rdma,
+}
+
 pub struct CGroup {
     pub path: PathBuf,
 }
