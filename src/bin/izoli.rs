@@ -7,4 +7,5 @@ fn main() {
     println!("{:?}", cgroup.read("cgroup.type"));
     println!("{:?}", cgroup.get_controllers());
     println!("{:?}", cgroup.get_procs());
+    println!("{:?}", cgroup.get_stat());
 }

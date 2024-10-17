@@ -5,7 +5,7 @@ use std::{
     str::FromStr,
 };
 
-use super::controller::Controller;
+use super::{cgroup_stat::CGroupStat, controller::Controller};
 
 pub struct CGroup {
     pub path: PathBuf,
@@ -75,5 +75,11 @@ impl CGroup {
             .collect();
 
         Ok(procs)
+    }
+
+    pub fn get_stat(&self) -> Result<CGroupStat, std::io::Error> {
+        let stat = self.read("cgroup.stat")?;
+
+        Ok(CGroupStat::from_str(&stat).unwrap())
     }
 }
