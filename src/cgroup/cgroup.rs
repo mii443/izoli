@@ -57,8 +57,16 @@ impl CGroup {
     }
 
     pub fn get_controllers(&self) -> Result<Vec<Controller>, std::io::Error> {
+        self.inner_get_controllers("cgroup.controllers")
+    }
+
+    pub fn get_subtree_control(&self) -> Result<Vec<Controller>, std::io::Error> {
+        self.inner_get_controllers("cgroup.subtree_control")
+    }
+
+    fn inner_get_controllers(&self, name: &str) -> Result<Vec<Controller>, std::io::Error> {
         let controllers = self
-            .read("cgroup.controllers")?
+            .read(name)?
             .trim()
             .split(" ")
             .map(|controller| Controller::from_str(controller).unwrap_or(Controller::Unknown))
