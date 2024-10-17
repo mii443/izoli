@@ -2,18 +2,10 @@ use std::{
     fs::{self, File},
     io::Read,
     path::{Path, PathBuf},
+    str::FromStr,
 };
 
-pub enum Controller {
-    Cpu,
-    Cpuset,
-    Memory,
-    Io,
-    Hugetlb,
-    Misc,
-    Pids,
-    Rdma,
-}
+use super::controller::Controller;
 
 pub struct CGroup {
     pub path: PathBuf,
@@ -62,5 +54,16 @@ impl CGroup {
         let cgroup_root = PathBuf::from("/sys/fs/cgroup/");
 
         cgroup_root.join(&self.path)
+    }
+
+    pub fn get_controllers(&self) -> Result<Vec<Controller>, std::io::Error> {
+        let controllers = self
+            .read("cgroup.controllers")?
+            .trim()
+            .split(" ")
+            .map(|controller| Controller::from_str(controller).unwrap_or(Controller::Unknown))
+            .collect();
+
+        Ok(controllers)
     }
 }

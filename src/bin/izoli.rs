@@ -5,5 +5,6 @@ fn main() {
     let cgroup = CGroup::new("test").unwrap();
     println!("{:?}", cgroup.get_root_path());
     println!("{}", cgroup.check_status());
-    println!("{:?}", cgroup.read("cgroup.controllers"));
+    println!("{:?}", cgroup.read("cgroup.type"));
+    println!("{:?}", cgroup.get_controllers());
 }
