@@ -30,6 +30,12 @@ impl CGroup {
         fs::create_dir_all(root)
     }
 
+    pub fn enter(&self) -> Result<(), std::io::Error> {
+        let pid = std::process::id();
+
+        self.add_procs(vec![pid])
+    }
+
     pub fn read(&self, name: &str) -> Result<String, std::io::Error> {
         let path = self.get_file_path(name);
         let mut file = File::open(path)?;

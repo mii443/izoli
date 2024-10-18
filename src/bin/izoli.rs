@@ -12,4 +12,6 @@ fn main() {
     println!("{:?}", cgroup.get_stat());
     println!("{:?}", cgroup.get_max_depth());
     println!("{:?}", cgroup.get_max_descendants());
+
+    cgroup.enter().unwrap();
 }
