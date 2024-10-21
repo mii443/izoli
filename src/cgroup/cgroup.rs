@@ -6,7 +6,10 @@ use std::{
     str::FromStr,
 };
 
-use super::{cgroup_stat::CGroupStat, controller::Controller, limit_value::CGroupLimitValue};
+use super::{
+    cgroup_stat::CGroupStat, controller::Controller, cpu_limit::CpuLimit,
+    limit_value::CGroupLimitValue,
+};
 
 pub struct CGroup {
     pub path: PathBuf,
@@ -165,6 +168,14 @@ impl CGroup {
 
     pub fn add_threads(&self, threads: Vec<u32>) -> Result<(), std::io::Error> {
         self.write_list("cgroup.threads", threads)
+    }
+
+    // cpu read
+
+    pub fn get_cpu_max(&self) -> Result<CpuLimit, std::io::Error> {
+        let max = self.read("cpu.max")?;
+
+        Ok(CpuLimit::from_str(&max).unwrap())
     }
 
     fn write_value<T>(&self, name: &str, value: T) -> Result<(), std::io::Error>

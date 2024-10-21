@@ -15,6 +15,7 @@ fn main() {
     println!("{:?}", cgroup.get_stat());
     println!("{:?}", cgroup.get_max_depth());
     println!("{:?}", cgroup.get_max_descendants());
+    println!("{:?}", cgroup.get_cpu_max());
 
     cgroup
         .add_subtree_control(cgroup.get_controllers().unwrap())
