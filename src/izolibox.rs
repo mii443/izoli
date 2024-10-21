@@ -1,7 +1,6 @@
 use std::{env::set_current_dir, fs, os::unix::fs::chroot, path::Path};
 
 use nix::{
-    errno::Errno,
     libc::SIGCHLD,
     mount::{mount, umount, MsFlags},
     sched::{self, CloneCb, CloneFlags},

@@ -1,13 +1,10 @@
-use std::{ffi::CString, process::Command};
+use std::ffi::CString;
 
 use izolilib::{
     cgroup::{cgroup::CGroup, cgroup_option::CGroupOption, cpu_limit::CpuLimit},
     izolibox::IzoliBox,
 };
-use nix::{
-    sys::wait::waitpid,
-    unistd::{execvp, sethostname},
-};
+use nix::{sys::wait::waitpid, unistd::execvp};
 
 fn main() {
     let cgroup = CGroup::new("izoli").unwrap();
@@ -31,10 +28,7 @@ fn main() {
             println!("Isolated process: {}", std::process::id());
 
             let cmd = CString::new("/usr/bin/bash").unwrap();
-            let args: Vec<CString> = vec![
-                //CString::new("containered bash").unwrap(),
-                //CString::new("-l").unwrap(),
-            ];
+            let args: Vec<CString> = vec![];
             if let Err(e) = execvp(&cmd, &args.as_ref()) {
                 eprintln!("execvp failed: {:?}", e);
                 return 127;
