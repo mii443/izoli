@@ -25,6 +25,14 @@ impl CGroup {
         Ok(cgroup)
     }
 
+    pub fn get_self_cgroup() -> Result<String, std::io::Error> {
+        let mut file = std::fs::File::open("/proc/self/cgroup")?;
+        let mut buf = String::default();
+        file.read_to_string(&mut buf)?;
+
+        Ok(buf.trim().to_string())
+    }
+
     fn create(&self) -> Result<(), std::io::Error> {
         let root = self.get_root_path();
         fs::create_dir_all(root)
