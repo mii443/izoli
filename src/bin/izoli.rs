@@ -1,6 +1,6 @@
 use izolilib::{
-    cgroup::cgroup::CGroup,
-    izolibox::{CGroupOption, IzoliBox},
+    cgroup::{cgroup::CGroup, cgroup_option::CGroupOption, cpu_limit::CpuLimit},
+    izolibox::IzoliBox,
 };
 
 fn main() {
@@ -21,7 +21,15 @@ fn main() {
         .add_subtree_control(cgroup.get_controllers().unwrap())
         .unwrap();
 
-    let izolibox = IzoliBox::new(1, Some(CGroupOption {}));
+    let izolibox = IzoliBox::new(
+        1,
+        Some(CGroupOption {
+            cpu_max: Some(CpuLimit {
+                max: izolilib::cgroup::limit_value::CGroupLimitValue::Value(1000),
+                period: 100000,
+            }),
+        }),
+    );
     let pid = izolibox
         .enter(Box::new(|| {
             println!("Isolated process: {}", std::process::id());

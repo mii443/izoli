@@ -7,8 +7,8 @@ use std::{
 };
 
 use super::{
-    cgroup_stat::CGroupStat, controller::Controller, cpu_limit::CpuLimit,
-    limit_value::CGroupLimitValue,
+    cgroup_option::CGroupOption, cgroup_stat::CGroupStat, controller::Controller,
+    cpu_limit::CpuLimit, limit_value::CGroupLimitValue,
 };
 
 pub struct CGroup {
@@ -39,6 +39,14 @@ impl CGroup {
     fn create(&self) -> Result<(), std::io::Error> {
         let root = self.get_root_path();
         fs::create_dir_all(root)
+    }
+
+    pub fn apply_options(&self, option: &CGroupOption) -> Result<(), std::io::Error> {
+        if let Some(cpu_max) = &option.cpu_max {
+            self.set_cpu_max(cpu_max)?;
+        }
+
+        Ok(())
     }
 
     pub fn enter(&self) -> Result<(), std::io::Error> {
@@ -176,6 +184,14 @@ impl CGroup {
         let max = self.read("cpu.max")?;
 
         Ok(CpuLimit::from_str(&max).unwrap())
+    }
+
+    // cpu write
+
+    pub fn set_cpu_max(&self, cpu_limit: &CpuLimit) -> Result<(), std::io::Error> {
+        let to_write = cpu_limit.to_string();
+
+        self.write("cpu.max", &to_write)
     }
 
     fn write_value<T>(&self, name: &str, value: T) -> Result<(), std::io::Error>

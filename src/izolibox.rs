@@ -4,11 +4,9 @@ use nix::{
     unistd::Pid,
 };
 
-use crate::cgroup::cgroup::CGroup;
+use crate::cgroup::{cgroup::CGroup, cgroup_option::CGroupOption};
 
 const STACK_SIZE: usize = 8192;
-
-pub struct CGroupOption {}
 
 pub struct IzoliBox {
     pub id: usize,
@@ -27,8 +25,9 @@ impl IzoliBox {
             | CloneFlags::CLONE_NEWIPC
             | CloneFlags::CLONE_NEWPID;
 
-        if let Some(_cgroup_option) = &self.cgroup_option {
+        if let Some(cgroup_option) = &self.cgroup_option {
             let cgroup = CGroup::new(&format!("izoli/box_{}", self.id)).unwrap();
+            cgroup.apply_options(cgroup_option).unwrap();
             cgroup.enter().unwrap();
         }
 

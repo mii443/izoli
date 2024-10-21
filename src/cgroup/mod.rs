@@ -1,4 +1,5 @@
 pub mod cgroup;
+pub mod cgroup_option;
 pub mod cgroup_stat;
 pub mod controller;
 pub mod cpu_limit;
