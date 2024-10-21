@@ -13,3 +13,9 @@ path = "src/bin/izoli.rs"
 
 [dependencies]
 nix = { version = "0.29.0", features = ["sched", "hostname", "mount"] }
+tracing = "0.1"
+tracing-appender = "0.2"
+
+[dependencies.tracing-subscriber]
+version = "0.3.16"
+features = ["env-filter", "fmt", "json", "local-time", "time"]

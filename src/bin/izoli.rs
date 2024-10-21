@@ -1,12 +1,20 @@
 use std::ffi::CString;
 
 use izolilib::{
-    cgroup::{cgroup::CGroup, cgroup_option::CGroupOption, cpu_limit::CpuLimit},
+    cgroup::{
+        cgroup::CGroup, cgroup_option::CGroupOption, cpu_limit::CpuLimit,
+        limit_value::CGroupLimitValue,
+    },
     izolibox::IzoliBox,
 };
 use nix::{sys::wait::waitpid, unistd::execvp};
+use tracing::Level;
 
 fn main() {
+    tracing_subscriber::fmt()
+        .with_max_level(Level::TRACE)
+        .init();
+
     let cgroup = CGroup::new("izoli").unwrap();
 
     cgroup
@@ -17,7 +25,7 @@ fn main() {
         1,
         Some(CGroupOption {
             cpu_max: Some(CpuLimit {
-                max: izolilib::cgroup::limit_value::CGroupLimitValue::Max,
+                max: CGroupLimitValue::Value(10000),
                 period: 100000,
             }),
         }),

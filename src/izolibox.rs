@@ -6,6 +6,7 @@ use nix::{
     sched::{self, CloneCb, CloneFlags},
     unistd::{sethostname, Pid},
 };
+use tracing::info;
 
 use crate::cgroup::{cgroup::CGroup, cgroup_option::CGroupOption};
 
@@ -22,11 +23,13 @@ impl IzoliBox {
     }
 
     pub fn enter(&self, callback: CloneCb<'_>) -> Result<Pid, nix::errno::Errno> {
+        info!("box enter");
         let mut stack = [0u8; STACK_SIZE];
         let flags = CloneFlags::CLONE_NEWNS
             | CloneFlags::CLONE_NEWUTS
             | CloneFlags::CLONE_NEWIPC
-            | CloneFlags::CLONE_NEWPID;
+            | CloneFlags::CLONE_NEWPID
+            | CloneFlags::CLONE_NEWNET;
 
         if let Some(cgroup_option) = &self.cgroup_option {
             let cgroup = CGroup::new(&format!("izoli/box_{}", self.id)).unwrap();
@@ -38,6 +41,7 @@ impl IzoliBox {
     }
 
     pub fn prelude(id: usize) -> Result<(), Box<dyn std::error::Error>> {
+        info!("box prelude");
         let root = format!("/var/local/lib/izoli/{}", id);
         fs::create_dir_all(Path::new(&root))?;
 
@@ -52,6 +56,7 @@ impl IzoliBox {
         for dir in &[
             "/proc", "/dev", "/tmp", "/lib", "/usr", "/bin", "/lib64", "/usr/lib", "/usr/bin",
         ] {
+            info!("creating {}", dir);
             fs::create_dir_all(format!("{}{}", root, dir))?;
         }
 
@@ -67,6 +72,7 @@ impl IzoliBox {
         ];
 
         for (target, source, flags) in mounts.iter() {
+            info!("mounting {} {} {:?}", target, source, flags);
             let full_target = format!("{}/{}", root, target);
             Self::umount_mount(
                 Some(source),
@@ -77,6 +83,7 @@ impl IzoliBox {
             )?;
         }
 
+        info!("chroot to {}", root);
         chroot(&root)?;
         set_current_dir("/")?;
 

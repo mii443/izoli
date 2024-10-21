@@ -6,6 +6,8 @@ use std::{
     str::FromStr,
 };
 
+use tracing::info;
+
 use super::{
     cgroup_option::CGroupOption, cgroup_stat::CGroupStat, controller::Controller,
     cpu_limit::CpuLimit, limit_value::CGroupLimitValue,
@@ -17,11 +19,13 @@ pub struct CGroup {
 
 impl CGroup {
     pub fn new(path: &str) -> Result<Self, std::io::Error> {
+        info!("creating new cgroup");
         let cgroup = CGroup {
             path: PathBuf::from(path),
         };
 
         if !cgroup.check_status() {
+            info!("cgroup not exists. creating");
             cgroup.create()?;
         }
 
@@ -32,6 +36,7 @@ impl CGroup {
         let mut file = std::fs::File::open("/proc/self/cgroup")?;
         let mut buf = String::default();
         file.read_to_string(&mut buf)?;
+        info!("self cgroup: {}", buf);
 
         Ok(buf.trim().to_string())
     }
@@ -42,7 +47,9 @@ impl CGroup {
     }
 
     pub fn apply_options(&self, option: &CGroupOption) -> Result<(), std::io::Error> {
+        info!("applying cgroup options");
         if let Some(cpu_max) = &option.cpu_max {
+            info!("setting cpu.max");
             self.set_cpu_max(cpu_max)?;
         }
 
@@ -51,11 +58,13 @@ impl CGroup {
 
     pub fn enter(&self) -> Result<(), std::io::Error> {
         let pid = std::process::id();
+        info!("cgroup enter: {}", pid);
 
         self.add_procs(vec![pid])
     }
 
     pub fn read(&self, name: &str) -> Result<String, std::io::Error> {
+        info!("reading {}", name);
         let path = self.get_file_path(name);
         let mut file = File::open(path)?;
         let mut buf = String::default();
@@ -65,6 +74,7 @@ impl CGroup {
     }
 
     pub fn write(&self, name: &str, data: &str) -> Result<(), std::io::Error> {
+        info!("writing {} to {}", data, name);
         let path = self.get_file_path(name);
         let mut file = File::options().append(true).open(path)?;
         file.write_all(data.as_bytes())?;
