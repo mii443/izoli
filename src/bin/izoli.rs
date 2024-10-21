@@ -1,4 +1,4 @@
-use izolilib::cgroup::{cgroup::CGroup, controller::Controller};
+use izolilib::{cgroup::cgroup::CGroup, izolibox::IzoliBox};
 
 fn main() {
     let cgroup = CGroup::new("test").unwrap();
@@ -14,4 +14,13 @@ fn main() {
     println!("{:?}", cgroup.get_max_descendants());
 
     cgroup.enter().unwrap();
+
+    let izolibox = IzoliBox::new();
+    let pid = izolibox
+        .enter(Box::new(|| {
+            println!("Isolated process: {}", std::process::id());
+            127
+        }))
+        .unwrap();
+    println!("Box real PID: {:?}", pid);
 }
