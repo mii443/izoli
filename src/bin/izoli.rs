@@ -11,17 +11,6 @@ use nix::{
 
 fn main() {
     let cgroup = CGroup::new("izoli").unwrap();
-    println!("{:?}", cgroup.get_root_path());
-    println!("{}", cgroup.check_status());
-    println!("{:?}", cgroup.read("cgroup.type"));
-    println!("{:?}", cgroup.get_controllers());
-    println!("{:?}", cgroup.get_subtree_control());
-    println!("{:?}", cgroup.get_procs());
-    println!("{:?}", cgroup.get_threads());
-    println!("{:?}", cgroup.get_stat());
-    println!("{:?}", cgroup.get_max_depth());
-    println!("{:?}", cgroup.get_max_descendants());
-    println!("{:?}", cgroup.get_cpu_max());
 
     cgroup
         .add_subtree_control(cgroup.get_controllers().unwrap())
@@ -38,14 +27,13 @@ fn main() {
     );
     let pid = izolibox
         .enter(Box::new(|| {
-            sethostname(format!("IzoliBox")).unwrap();
+            IzoliBox::prelude(1).unwrap();
             println!("Isolated process: {}", std::process::id());
-            println!("cgroup: {:?}", CGroup::get_self_cgroup());
 
-            let cmd = CString::new("bash").unwrap();
-            let args = vec![
-                CString::new("containered bash").unwrap(),
-                CString::new("-l").unwrap(),
+            let cmd = CString::new("/usr/bin/bash").unwrap();
+            let args: Vec<CString> = vec![
+                //CString::new("containered bash").unwrap(),
+                //CString::new("-l").unwrap(),
             ];
             if let Err(e) = execvp(&cmd, &args.as_ref()) {
                 eprintln!("execvp failed: {:?}", e);

@@ -12,4 +12,4 @@ name = "izoli"
 path = "src/bin/izoli.rs"
 
 [dependencies]
-nix = { version = "0.29.0", features = ["sched", "hostname"] }
+nix = { version = "0.29.0", features = ["sched", "hostname", "mount"] }
