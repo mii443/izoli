@@ -25,7 +25,7 @@ fn main() {
         1,
         Some(CGroupOption {
             cpu_max: Some(CpuLimit {
-                max: CGroupLimitValue::Value(10000),
+                max: CGroupLimitValue::Max,
                 period: 100000,
             }),
         }),

@@ -53,13 +53,6 @@ impl IzoliBox {
             None::<&str>,
         )?;
 
-        for dir in &[
-            "/proc", "/dev", "/tmp", "/lib", "/usr", "/bin", "/lib64", "/usr/lib", "/usr/bin",
-        ] {
-            info!("creating {}", dir);
-            fs::create_dir_all(format!("{}{}", root, dir))?;
-        }
-
         let mounts = [
             ("tmp", "tmpfs", MsFlags::empty()),
             ("proc", "proc", MsFlags::empty()),
@@ -73,6 +66,7 @@ impl IzoliBox {
 
         for (target, source, flags) in mounts.iter() {
             info!("mounting {} {} {:?}", target, source, flags);
+            fs::create_dir_all(format!("{}/{}", root, target))?;
             let full_target = format!("{}/{}", root, target);
             Self::umount_mount(
                 Some(source),
