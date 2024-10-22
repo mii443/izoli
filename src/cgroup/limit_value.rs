@@ -1,6 +1,6 @@
 use std::{fmt, str::FromStr};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum CGroupLimitValue<T>
 where
     T: FromStr + std::fmt::Display,

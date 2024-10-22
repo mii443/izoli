@@ -14,12 +14,17 @@ const STACK_SIZE: usize = 8192;
 
 pub struct IzoliBox {
     pub id: usize,
+    pub options: IzoliBoxOptions,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct IzoliBoxOptions {
     pub cgroup_option: Option<CGroupOption>,
 }
 
 impl IzoliBox {
-    pub fn new(id: usize, cgroup_option: Option<CGroupOption>) -> Self {
-        Self { id, cgroup_option }
+    pub fn new(id: usize, options: IzoliBoxOptions) -> Self {
+        Self { id, options }
     }
 
     pub fn enter(&self, callback: CloneCb<'_>) -> Result<Pid, nix::errno::Errno> {
@@ -31,7 +36,7 @@ impl IzoliBox {
             | CloneFlags::CLONE_NEWPID
             | CloneFlags::CLONE_NEWNET;
 
-        if let Some(cgroup_option) = &self.cgroup_option {
+        if let Some(cgroup_option) = &self.options.cgroup_option {
             let cgroup = CGroup::new(&format!("izoli/box_{}", self.id)).unwrap();
             cgroup.apply_options(cgroup_option).unwrap();
             cgroup.enter().unwrap();

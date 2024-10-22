@@ -5,7 +5,7 @@ use izolilib::{
         cgroup::CGroup, cgroup_option::CGroupOption, cpu_limit::CpuLimit,
         limit_value::CGroupLimitValue,
     },
-    izolibox::IzoliBox,
+    izolibox::{IzoliBox, IzoliBoxOptions},
 };
 use nix::{sys::wait::waitpid, unistd::execvp};
 use tracing::Level;
@@ -23,12 +23,14 @@ fn main() {
 
     let izolibox = IzoliBox::new(
         1,
-        Some(CGroupOption {
-            cpu_max: Some(CpuLimit {
-                max: CGroupLimitValue::Max,
-                period: 100000,
+        IzoliBoxOptions {
+            cgroup_option: Some(CGroupOption {
+                cpu_max: Some(CpuLimit {
+                    max: CGroupLimitValue::Max,
+                    period: 100000,
+                }),
             }),
-        }),
+        },
     );
     let pid = izolibox
         .enter(Box::new(|| {
