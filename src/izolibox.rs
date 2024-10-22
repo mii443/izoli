@@ -20,6 +20,7 @@ pub struct IzoliBox {
 #[derive(Debug, Clone, Default)]
 pub struct IzoliBoxOptions {
     pub cgroup_option: Option<CGroupOption>,
+    pub new_net: bool,
 }
 
 impl IzoliBox {
@@ -30,11 +31,14 @@ impl IzoliBox {
     pub fn enter(&self, callback: CloneCb<'_>) -> Result<Pid, nix::errno::Errno> {
         info!("box enter");
         let mut stack = [0u8; STACK_SIZE];
-        let flags = CloneFlags::CLONE_NEWNS
+        let mut flags = CloneFlags::CLONE_NEWNS
             | CloneFlags::CLONE_NEWUTS
             | CloneFlags::CLONE_NEWIPC
-            | CloneFlags::CLONE_NEWPID
-            | CloneFlags::CLONE_NEWNET;
+            | CloneFlags::CLONE_NEWPID;
+
+        if self.options.new_net {
+            flags = flags | CloneFlags::CLONE_NEWNET;
+        }
 
         if let Some(cgroup_option) = &self.options.cgroup_option {
             let cgroup = CGroup::new(&format!("izoli/box_{}", self.id)).unwrap();

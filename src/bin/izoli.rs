@@ -29,9 +29,12 @@ fn main() {
                     max: CGroupLimitValue::Max,
                     period: 100000,
                 }),
+                ..Default::default()
             }),
+            new_net: true,
         },
     );
+
     let pid = izolibox
         .enter(Box::new(|| {
             IzoliBox::prelude(1).unwrap();
