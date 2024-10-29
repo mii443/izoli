@@ -29,6 +29,7 @@ fn main() {
                     max: CGroupLimitValue::Max,
                     period: 100000,
                 }),
+                memory_max: Some(CGroupLimitValue::Value(1024 * 1024 * 2)),
                 ..Default::default()
             }),
             new_net: true,

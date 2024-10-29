@@ -53,6 +53,11 @@ impl CGroup {
             self.set_cpu_max(cpu_max)?;
         }
 
+        if let Some(memory_max) = &option.memory_max {
+            info!("setting memory.max");
+            self.set_memory_max(memory_max)?;
+        }
+
         Ok(())
     }
 
@@ -202,6 +207,25 @@ impl CGroup {
         let to_write = cpu_limit.to_string();
 
         self.write("cpu.max", &to_write)
+    }
+
+    // memory read
+
+    pub fn get_memory_max(&self) -> Result<CGroupLimitValue<u32>, std::io::Error> {
+        let max = self.read("memory.max")?;
+
+        Ok(CGroupLimitValue::from_str(&max).unwrap())
+    }
+
+    // memory write
+
+    pub fn set_memory_max(
+        &self,
+        memory_limit: &CGroupLimitValue<u32>,
+    ) -> Result<(), std::io::Error> {
+        let to_write = memory_limit.to_string();
+
+        self.write("memory.max", &to_write)
     }
 
     fn write_value<T>(&self, name: &str, value: T) -> Result<(), std::io::Error>
