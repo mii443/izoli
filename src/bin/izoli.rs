@@ -30,7 +30,8 @@ fn main() {
                     period: 100000,
                 }),
                 memory_max: Some(CGroupLimitValue::Value(1024 * 1024 * 1024)),
-                pids_max: Some(CGroupLimitValue::Value(3)),
+                pids_max: Some(CGroupLimitValue::Value(10)),
+                cpus: Some(vec![0]),
                 ..Default::default()
             }),
             new_net: false,

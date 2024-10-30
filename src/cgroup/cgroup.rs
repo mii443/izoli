@@ -63,6 +63,11 @@ impl CGroup {
             self.set_pids_max(pids_max)?;
         }
 
+        if let Some(cpus) = &option.cpus {
+            info!("setting cpuset.cpus");
+            self.set_cpuset_cpus(cpus)?;
+        }
+
         Ok(())
     }
 
@@ -247,6 +252,18 @@ impl CGroup {
         let to_write = pids_limit.to_string();
 
         self.write("pids.max", &to_write)
+    }
+
+    // cpuset read
+
+    pub fn get_cpuset_cpus(&self) -> Result<Vec<u32>, std::io::Error> {
+        self.get_u32_list("cpuset.cpus")
+    }
+
+    // cpuset write
+
+    pub fn set_cpuset_cpus(&self, cpus: &Vec<u32>) -> Result<(), std::io::Error> {
+        self.write_list("cpuset.cpus", cpus.clone())
     }
 
     fn write_value<T>(&self, name: &str, value: T) -> Result<(), std::io::Error>
