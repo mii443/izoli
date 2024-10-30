@@ -58,6 +58,11 @@ impl CGroup {
             self.set_memory_max(memory_max)?;
         }
 
+        if let Some(pids_max) = &option.pids_max {
+            info!("setting pids.max");
+            self.set_pids_max(pids_max)?;
+        }
+
         Ok(())
     }
 
@@ -226,6 +231,22 @@ impl CGroup {
         let to_write = memory_limit.to_string();
 
         self.write("memory.max", &to_write)
+    }
+
+    // pids read
+
+    pub fn get_pids_max(&self) -> Result<CGroupLimitValue<u32>, std::io::Error> {
+        let max = self.read("pids.max")?;
+
+        Ok(CGroupLimitValue::from_str(&max).unwrap())
+    }
+
+    // pids write
+
+    pub fn set_pids_max(&self, pids_limit: &CGroupLimitValue<u32>) -> Result<(), std::io::Error> {
+        let to_write = pids_limit.to_string();
+
+        self.write("pids.max", &to_write)
     }
 
     fn write_value<T>(&self, name: &str, value: T) -> Result<(), std::io::Error>

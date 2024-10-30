@@ -29,10 +29,11 @@ fn main() {
                     max: CGroupLimitValue::Max,
                     period: 100000,
                 }),
-                memory_max: Some(CGroupLimitValue::Value(1024 * 1024 * 2)),
+                memory_max: Some(CGroupLimitValue::Value(1024 * 1024 * 1024)),
+                pids_max: Some(CGroupLimitValue::Value(3)),
                 ..Default::default()
             }),
-            new_net: true,
+            new_net: false,
         },
     );
 
