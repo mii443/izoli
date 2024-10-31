@@ -48,7 +48,7 @@ impl IzoliBox {
 
         let mut callback = callback;
         let new_callback = Box::new(|| {
-            IzoliBox::prelude(self.id).unwrap();
+            self.prelude().unwrap();
 
             callback();
 
@@ -58,10 +58,27 @@ impl IzoliBox {
         unsafe { sched::clone(new_callback, &mut stack, flags, Some(SIGCHLD)) }
     }
 
-    pub fn prelude(id: usize) -> Result<(), Box<dyn std::error::Error>> {
+    fn prelude(&self) -> Result<(), Box<dyn std::error::Error>> {
         info!("box prelude");
-        let root = format!("/var/local/lib/izoli/{}", id);
+        let root = self.get_root();
         fs::create_dir_all(Path::new(&root))?;
+
+        self.prelude_mount()?;
+
+        info!("chroot to {}", root);
+        chroot(&root)?;
+        set_current_dir("/")?;
+
+        sethostname(format!("IzoliBox"))?;
+        Ok(())
+    }
+
+    fn get_root(&self) -> String {
+        format!("/var/local/lib/izoli/{}", self.id)
+    }
+
+    fn prelude_mount(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let root = self.get_root();
 
         Self::umount_mount(
             Some("none"),
@@ -118,12 +135,6 @@ impl IzoliBox {
                 None::<&str>,
             )?;
         }
-
-        info!("chroot to {}", root);
-        chroot(&root)?;
-        set_current_dir("/")?;
-
-        sethostname(format!("IzoliBox"))?;
         Ok(())
     }
 
