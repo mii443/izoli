@@ -17,6 +17,13 @@ pub struct CGroup {
     pub path: PathBuf,
 }
 
+impl Drop for CGroup {
+    fn drop(&mut self) {
+        let root = self.get_root_path();
+        let _ = fs::remove_dir(root);
+    }
+}
+
 impl CGroup {
     pub fn new(path: &str) -> Result<Self, std::io::Error> {
         info!("creating new cgroup");
