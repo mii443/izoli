@@ -40,9 +40,6 @@ fn main() {
 
     let pid = izolibox
         .enter(Box::new(|| {
-            IzoliBox::prelude(1).unwrap();
-            println!("Isolated process: {}", std::process::id());
-
             let cmd = CString::new("/usr/bin/bash").unwrap();
             let args: Vec<CString> = vec![];
             if let Err(e) = execvp(&cmd, &args.as_ref()) {

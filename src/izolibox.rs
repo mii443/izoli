@@ -46,7 +46,16 @@ impl IzoliBox {
             cgroup.enter().unwrap();
         }
 
-        unsafe { sched::clone(callback, &mut stack, flags, Some(SIGCHLD)) }
+        let mut callback = callback;
+        let new_callback = Box::new(|| {
+            IzoliBox::prelude(self.id).unwrap();
+
+            callback();
+
+            127
+        });
+
+        unsafe { sched::clone(new_callback, &mut stack, flags, Some(SIGCHLD)) }
     }
 
     pub fn prelude(id: usize) -> Result<(), Box<dyn std::error::Error>> {
