@@ -50,6 +50,7 @@ impl IzoliBox {
         let new_callback = Box::new(|| {
             self.prelude().unwrap();
 
+            info!("running user code");
             callback();
 
             127
