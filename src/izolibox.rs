@@ -6,7 +6,7 @@ use nix::{
     sched::{self, CloneCb, CloneFlags},
     unistd::{sethostname, Pid},
 };
-use tracing::info;
+use tracing::{info, trace};
 
 use crate::cgroup::{cgroup::CGroup, cgroup_option::CGroupOption};
 
@@ -21,6 +21,26 @@ pub struct IzoliBox {
 pub struct IzoliBoxOptions {
     pub cgroup_option: Option<CGroupOption>,
     pub new_net: bool,
+    pub mounts: Vec<Mount>,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct Mount {
+    pub target: String,
+    pub source: String,
+    pub readonly: bool,
+    pub no_exec: bool,
+}
+
+impl Mount {
+    pub fn new(target: &str, source: &str, readonly: bool, no_exec: bool) -> Self {
+        Self {
+            target: target.to_string(),
+            source: source.to_string(),
+            readonly,
+            no_exec,
+        }
+    }
 }
 
 impl IzoliBox {
@@ -62,6 +82,7 @@ impl IzoliBox {
     fn prelude(&self) -> Result<(), Box<dyn std::error::Error>> {
         info!("box prelude");
         let root = self.get_root();
+        let _ = fs::remove_dir(Path::new(&root));
         fs::create_dir_all(Path::new(&root))?;
 
         self.prelude_mount()?;
@@ -107,22 +128,34 @@ impl IzoliBox {
             )?;
         }
 
-        // readonly monut
-        let mounts = [
-            ("bin", "/bin"),
-            ("usr/bin", "/usr/bin"),
-            ("usr/lib", "/usr/lib"),
-            ("lib", "/usr/lib"),
-            ("lib64", "/usr/lib64"),
-        ];
+        for Mount {
+            target,
+            source,
+            readonly,
+            no_exec,
+        } in self.options.mounts.clone()
+        {
+            let target: &str = &target;
+            let source: &str = &source;
+            let flag_noexec = if no_exec {
+                MsFlags::MS_NOEXEC
+            } else {
+                MsFlags::empty()
+            };
 
-        for (target, source) in mounts.iter() {
-            let target: &str = &format!("{}/{}", root, target);
-            info!("mounting {} to {} readonly", source, target);
-            fs::create_dir_all(target)?;
+            let flag_rdonly = if readonly {
+                MsFlags::MS_RDONLY
+            } else {
+                MsFlags::empty()
+            };
+
+            let full_target: &str = &format!("{}/{}", root, target.trim_start_matches("/"));
+            info!("mounting {} to {}", source, full_target);
+            fs::create_dir_all(full_target)?;
+
             mount(
-                Some(*source),
-                target,
+                Some(source),
+                full_target,
                 Some("none"),
                 MsFlags::MS_BIND | MsFlags::MS_REC,
                 None::<&str>,
@@ -130,12 +163,25 @@ impl IzoliBox {
 
             mount(
                 None::<&str>,
-                target,
+                full_target,
                 None::<&str>,
-                MsFlags::MS_BIND | MsFlags::MS_REMOUNT | MsFlags::MS_RDONLY | MsFlags::MS_REC,
+                MsFlags::MS_BIND
+                    | MsFlags::MS_REMOUNT
+                    | MsFlags::MS_REC
+                    | flag_rdonly
+                    | flag_noexec,
                 None::<&str>,
             )?;
+            trace!(
+                "{:?}",
+                MsFlags::MS_BIND
+                    | MsFlags::MS_REMOUNT
+                    | MsFlags::MS_REC
+                    | flag_rdonly
+                    | flag_noexec
+            );
         }
+
         Ok(())
     }
 

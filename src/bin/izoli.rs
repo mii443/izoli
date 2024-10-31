@@ -5,7 +5,7 @@ use izolilib::{
         cgroup::CGroup, cgroup_option::CGroupOption, cpu_limit::CpuLimit,
         limit_value::CGroupLimitValue,
     },
-    izolibox::{IzoliBox, IzoliBoxOptions},
+    izolibox::{IzoliBox, IzoliBoxOptions, Mount},
 };
 use nix::{sys::wait::waitpid, unistd::execvp};
 use tracing::Level;
@@ -35,6 +35,14 @@ fn main() {
                 ..Default::default()
             }),
             new_net: false,
+            mounts: vec![
+                Mount::new("/bin", "/bin", true, false),
+                Mount::new("/usr/bin", "/usr/bin", true, false),
+                Mount::new("/lib", "/lib", true, false),
+                Mount::new("/lib64", "/lib64", true, false),
+                Mount::new("/usr/lib", "/usr/lib", true, false),
+                Mount::new("/usr/lib64", "/usr/lib64", true, false),
+            ],
         },
     );
 
