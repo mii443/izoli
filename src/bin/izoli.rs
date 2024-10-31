@@ -42,6 +42,8 @@ fn main() {
         .enter(Box::new(|| {
             let cmd = CString::new("/usr/bin/bash").unwrap();
             let args: Vec<CString> = vec![];
+
+            #[allow(irrefutable_let_patterns)]
             if let Err(e) = execvp(&cmd, &args.as_ref()) {
                 eprintln!("execvp failed: {:?}", e);
                 return 127;
