@@ -72,25 +72,49 @@ impl IzoliBox {
         )?;
 
         let mounts = [
-            ("tmp", "tmpfs", MsFlags::empty()),
-            ("proc", "proc", MsFlags::empty()),
-            ("dev", "devtmpfs", MsFlags::empty()),
-            ("lib", "/lib", MsFlags::MS_BIND | MsFlags::MS_REC),
-            ("usr/lib", "/usr/lib", MsFlags::MS_BIND | MsFlags::MS_REC),
-            ("usr/bin", "/usr/bin", MsFlags::MS_BIND | MsFlags::MS_REC),
-            ("bin", "/bin", MsFlags::MS_BIND | MsFlags::MS_REC),
-            ("lib64", "/lib64", MsFlags::MS_BIND | MsFlags::MS_REC),
+            ("tmp", Some("tmpfs"), MsFlags::empty()),
+            ("proc", Some("proc"), MsFlags::empty()),
         ];
 
         for (target, source, flags) in mounts.iter() {
-            info!("mounting {} {} {:?}", target, source, flags);
+            info!("mounting {} {:?} {:?}", target, source, flags);
             fs::create_dir_all(format!("{}/{}", root, target))?;
             let full_target = format!("{}/{}", root, target);
             Self::umount_mount(
-                Some(source),
+                source.clone(),
                 &full_target,
-                Some(source),
+                source.clone(),
                 *flags,
+                None::<&str>,
+            )?;
+        }
+
+        // readonly monut
+        let mounts = [
+            ("bin", "/bin"),
+            ("usr/bin", "/usr/bin"),
+            ("usr/lib", "/usr/lib"),
+            ("lib", "/usr/lib"),
+            ("lib64", "/usr/lib64"),
+        ];
+
+        for (target, source) in mounts.iter() {
+            let target: &str = &format!("{}/{}", root, target);
+            info!("mounting {} to {} readonly", source, target);
+            fs::create_dir_all(target)?;
+            mount(
+                Some(*source),
+                target,
+                Some("none"),
+                MsFlags::MS_BIND | MsFlags::MS_REC,
+                None::<&str>,
+            )?;
+
+            mount(
+                None::<&str>,
+                target,
+                None::<&str>,
+                MsFlags::MS_BIND | MsFlags::MS_REMOUNT | MsFlags::MS_RDONLY | MsFlags::MS_REC,
                 None::<&str>,
             )?;
         }
