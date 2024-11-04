@@ -42,6 +42,7 @@ fn main() {
                 Mount::new("/lib64", "/lib64", true, false),
                 Mount::new("/usr/lib", "/usr/lib", true, false),
                 Mount::new("/usr/lib64", "/usr/lib64", true, false),
+                Mount::new("/etc", "/etc", true, true),
             ],
         },
     );

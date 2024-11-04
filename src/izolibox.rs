@@ -112,7 +112,7 @@ impl IzoliBox {
 
         let mounts = [
             ("tmp", Some("tmpfs"), MsFlags::empty()),
-            ("proc", Some("proc"), MsFlags::empty()),
+            ("proc", Some("proc"), MsFlags::MS_RDONLY),
         ];
 
         for (target, source, flags) in mounts.iter() {
